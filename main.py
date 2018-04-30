@@ -26,9 +26,14 @@ class User(db.Model):
     password = db.Column(db.String(120))
     blogs = db.relationship('Blog', backref='owner')
 
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'signup', 'blog', 'index', 'new_blog']
+    allowed_routes = ['login', 'signup', 'blog', 'index']
+    print(session)
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect ('/login')
 
@@ -89,7 +94,7 @@ def logout():
     return redirect('/blog')
 
 @app.route('/posts', methods=['POST', 'GET'])
-def new_blog():
+def posts():
 
     return render_template('posts.html')
 
@@ -98,9 +103,8 @@ def blog():
     if request.args.get('id'):
         id = request.args.get('id')
         blog = Blog.query.get(id)
-        title = blog.title
-        body = blog.body
-        return render_template('single_entry.html',blog=blog)
+    
+        return render_template('single_entry.html', blog=blog)
 
     if request.args.get('user'):
         user_id = request.args.get('user')
@@ -108,9 +112,9 @@ def blog():
         return render_template('singleUser.html', blogs=blogs)
 
     if request.method =='POST':
-        blog_title = request.form['blog_title']
-        blog = request.form['blog']
-        owner = User.query.filter_by(username=session['username']).first()
+        blog_title = request.form['blog']
+        blog = request.form['body']
+        owner = User.query.filter_by(username=session['user']).first()
         if not blog_title:
             flash('Please enter a title')
             return render_template('posts.html')
