@@ -114,7 +114,7 @@ def blog():
     if request.method =='POST':
         blog_title = request.form['blog']
         blog = request.form['body']
-        owner = User.query.filter_by(username=session['user']).first()
+        owner = User.query.filter_by(username=session['username']).first()
         if not blog_title:
             flash('Please enter a title')
             return render_template('posts.html')
